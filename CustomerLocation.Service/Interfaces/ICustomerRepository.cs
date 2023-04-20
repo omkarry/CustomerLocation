@@ -8,5 +8,7 @@ namespace CustomerLocation.Service.Interfaces
         public List<CustomerDto> GetCustomers();
         public CustomerDto GetCustomer(int customerId);
         public void AddCustomer(CustomerDto customer);
+        public CustomerDto UpdateCustomer(CustomerDto customerDto);
+        public Boolean DeleteCustomer(int customerId);
     }
 }

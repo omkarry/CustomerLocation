@@ -51,5 +51,37 @@ namespace CustomerLocation.Service.Services
             _customerLocationContext.Customer.Add(newCustomer);
             _customerLocationContext.SaveChanges();
         }
+        public CustomerDto UpdateCustomer(CustomerDto customerDto)
+        {
+            var customer = _customerLocationContext.Customer.Include(c => c.CustomerAddress).ToList().Where(_ => _.Id == customerDto.Id).FirstOrDefault();
+            if (customer == null)
+                return null;
+            else
+            {
+                customer.FirstName = customerDto.FirstName;
+                customer.LastName = customerDto.LastName;
+                customer.Email = customerDto.Email;
+                customer.Phone = customerDto.Phone;
+                customer.CustomerAddress.City = customerDto.CustomerAddress.City;
+                customer.CustomerAddress.State = customerDto.CustomerAddress.State;
+                customer.CustomerAddress.ZipCode = customerDto.CustomerAddress.ZipCode;
+                _customerLocationContext.Customer.Update(customer);
+                _customerLocationContext.SaveChanges();
+                return (new CustomerMapper().Map(customer));
+            }
+        }
+
+        public Boolean DeleteCustomer(int customerId)
+        {
+            var customer = _customerLocationContext.Customer.Include(c => c.CustomerAddress).ToList().Where(_ => _.Id == customerId).FirstOrDefault();
+            if (customer != null)
+            {
+                _customerLocationContext.Customer.Remove(customer);
+                _customerLocationContext.SaveChanges();
+                return true;
+            }
+            else
+                return false;
+        }
     }
 }

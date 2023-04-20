@@ -127,5 +127,64 @@ namespace CustomerLocation.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPut("Customer")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public IActionResult Put(CustomerDto customer)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new ApiResponse<object> { StatusCode = 400, Message = ResponseMessages.DataFormat });
+                else
+                {
+                    CustomerDto updatedCustomer = _customerLocation.UpdateCustomer(customer);
+                    if (updatedCustomer == null)
+                        return NotFound(new ApiResponse<CustomerDto> { StatusCode = 404, Message = ResponseMessages.CustomerNotFound, Result = customer });
+                    else
+                        return Ok(new ApiResponse<CustomerDto> { StatusCode = 200, Message = ResponseMessages.CustomerUpdate, Result = updatedCustomer });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Deletes a Customer.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE /api/Customer/{id}
+        ///
+        /// </remarks>
+        /// <response code="200">Customer deleted successfully</response>
+        /// <response code="404">Customer not found</response>
+        /// <response code="500">Internal server Error</response>
+
+        [HttpDelete("Customer/{id}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                bool customerDeleted = _customerLocation.DeleteCustomer(id);
+                if (customerDeleted)
+                    return Ok(new ApiResponse<object> { StatusCode = 200, Message = ResponseMessages.CustomerDelete });
+                else
+                    return NotFound(new ApiResponse<object> { StatusCode = 404, Message = ResponseMessages.CustomerNotFound });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
