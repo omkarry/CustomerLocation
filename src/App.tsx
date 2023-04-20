@@ -29,8 +29,6 @@ function App() {
   });
   const [loading, setLoading] = useState(true);
 
-  
-
   useEffect(() => {
     axios.interceptors.request.use(
       (config) => {
