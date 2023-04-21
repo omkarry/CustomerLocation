@@ -48,7 +48,7 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setEmail(event.target.value);
-    if (event.target.value.length > 3 && event.target.value.includes('@')) {
+    if (validateEmail(email)) {
       axios
         .get(`${baseUrl}/Customer/IsEmailExist/${event.target.value}`)
         .then(res => {
@@ -74,7 +74,7 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setPhone(event.target.value);
-    if (event.target.value.length > 9 && event.target.value.length <= 12) {
+    if (validatePhone(phone)) {
       axios
         .get(`${baseUrl}/Customer/IsPhoneExist/${event.target.value}`)
         .then(res => {
