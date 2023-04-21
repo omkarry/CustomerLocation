@@ -27,7 +27,7 @@ function App() {
   const [profile, setProfile] = useState({
     name: "Johnson",
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     axios.interceptors.request.use(

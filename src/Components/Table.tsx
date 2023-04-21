@@ -96,8 +96,7 @@ const TableData: React.FC<Props> = ({ customers, getCustomers }) => {
             </th>
             <th>Zipcode
             </th>
-            <th>Update</th>
-            <th>Delete</th>
+            <th colSpan={2}>Action</th>
           </tr>
         </thead>
         <tbody>
