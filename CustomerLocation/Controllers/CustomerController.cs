@@ -1,4 +1,5 @@
-﻿using CustomerLocation.Data.Models;
+﻿using CustomerLocation.Data.DBContext;
+using CustomerLocation.Data.Models;
 using CustomerLocation.Service.DTOs;
 using CustomerLocation.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -180,6 +181,49 @@ namespace CustomerLocation.Controllers
                     return Ok(new ApiResponse<object> { StatusCode = 200, Message = ResponseMessages.CustomerDelete });
                 else
                     return NotFound(new ApiResponse<object> { StatusCode = 404, Message = ResponseMessages.CustomerNotFound });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("Customer/IsEmailExist/{email}")]
+        public IActionResult IsEmailExist(string email)
+        {
+            try
+            {
+                bool ext= _customerLocation.IsEmailExist(email);
+                if (ext)
+                {
+                    return Ok(new ApiResponse<bool> { StatusCode = 200, Message="Customer already exist with this email", Result = true });
+                }
+                else
+                {
+                    return Ok(new ApiResponse<bool> { StatusCode = 200, Result = false });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        [HttpGet("Customer/IsPhoneExist/{phone}")]
+        public IActionResult IsPhoneExist(string phone)
+        {
+            try
+            {
+                bool ext = _customerLocation.IsPhoneExist(phone);
+                if (ext)
+                {
+                    return Ok(new ApiResponse<bool> { StatusCode = 200, Message = "Customer already exist with this phone number.", Result = true });
+                }
+                else
+                {
+                    return Ok(new ApiResponse<bool> { StatusCode = 200, Result = false });
+                }
             }
             catch (Exception ex)
             {

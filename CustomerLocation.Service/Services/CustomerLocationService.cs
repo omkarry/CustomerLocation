@@ -39,7 +39,7 @@ namespace CustomerLocation.Service.Services
             {
                 FirstName = customerDto.FirstName,
                 LastName = customerDto.LastName,
-                Email = customerDto.Email,
+                Email = customerDto.Email.ToLower(),
                 Phone = customerDto.Phone,
                 CustomerAddress = new CustomerAddress
                 {
@@ -71,7 +71,7 @@ namespace CustomerLocation.Service.Services
             }
         }
 
-        public Boolean DeleteCustomer(int customerId)
+        public bool DeleteCustomer(int customerId)
         {
             var customer = _customerLocationContext.Customer.Include(c => c.CustomerAddress).ToList().Where(_ => _.Id == customerId).FirstOrDefault();
             if (customer != null)
@@ -82,6 +82,32 @@ namespace CustomerLocation.Service.Services
             }
             else
                 return false;
+        }
+
+        public bool IsEmailExist(string email)
+        {
+            var existingCustomerByEmail = _customerLocationContext.Customer.Where(p => p.Email == email.ToLower()).FirstOrDefault();
+            if (existingCustomerByEmail != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }            
+        }
+
+        public bool IsPhoneExist(string phone)
+        {
+            var existingCustomerByPhone = _customerLocationContext.Customer.Where(p => p.Phone == phone.ToLower()).FirstOrDefault();
+            if (existingCustomerByPhone != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
