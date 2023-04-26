@@ -9,7 +9,7 @@ export const AppContext = React.createContext<any>({});
 
 export const baseUrl = "http://localhost:5026/api";
 
-export type customer = {
+export type Customer = {
   id: number;
   firstName: string;
   lastName: string;
@@ -19,7 +19,7 @@ export type customer = {
     id: number;
     city: string;
     state: string;
-    zipCode: number;
+    zipCode: string;
   }
 };
 
@@ -29,33 +29,32 @@ function App() {
   });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    axios.interceptors.request.use(
-      (config) => {
-        setLoading(true);
-        return config;
-      },
-      (error) => {
-        setLoading(false);
-        return Promise.reject(error);
-      }
-    );
+  // useEffect(() => {
+  //   axios.interceptors.request.use(
+  //     (config) => {
+  //       setLoading(true);
+  //       return config;
+  //     },
+  //     (error) => {
+  //       setLoading(false);
+  //       return Promise.reject(error);
+  //     }
+  //   );
 
-    axios.interceptors.response.use(
-      (response) => {
-        setLoading(false);
-        return response;
-      },
-      (error) => {
-        setLoading(false);
-        return Promise.reject(error);
-      }
-    );
-  }, []);
+  //   axios.interceptors.response.use(
+  //     (response) => {
+  //       setLoading(false);
+  //       return response;
+  //     },
+  //     (error) => {
+  //       setLoading(false);
+  //       return Promise.reject(error);
+  //     }
+  //   );
+  // }, []);
 
-  
   return (
-    <AppContext.Provider value={{ profile, loading }}>
+    <AppContext.Provider value={{ profile, loading, setLoading }}>
       <BrowserRouter>
         <div className="container-fluid w-100">
           <div className="row">

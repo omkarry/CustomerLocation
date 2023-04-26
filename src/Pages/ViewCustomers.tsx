@@ -1,11 +1,11 @@
-import { customer, AppContext } from "../App";
+import { Customer, AppContext } from "../App";
 import React, { useState } from 'react'
 import TableData from "../Components/Table";
 import axios from "axios";
 
 const ViewCustomers: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [customerList, setCustomerList] = useState<customer[]>([]);
+  const [customerList, setCustomerList] = useState<Customer[]>([]);
 
   const getCustomers = () => {
     axios.get("http://localhost:5026/api/Customers")

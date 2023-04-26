@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import { AppContext, baseUrl, customer } from '../App';
+import { AppContext, baseUrl, Customer } from '../App';
 import { FaSort } from 'react-icons/fa';
 import { Table } from 'react-bootstrap';
 import ModalDetails from './Modal';
@@ -8,17 +8,17 @@ import axios from 'axios';
 import Loader from './Loader'
 
 interface Props {
-  customers: customer[];
+  customers: Customer[];
   getCustomers: Function;
 }
 
 const TableData: React.FC<Props> = ({ customers, getCustomers }) => {
   const { loading } = useContext(AppContext);
 
-  const [sortedField, setSortedField] = React.useState<keyof customer | null>(null);
+  const [sortedField, setSortedField] = React.useState<keyof Customer | null>(null);
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('asc');
 
-  let sortedCustomers: customer[] = [...customers];
+  let sortedCustomers: Customer[] = [...customers];
   if (sortedField !== null) {
     sortedCustomers.sort((a, b) => {
       const sortValue = sortDirection === 'asc' ? 1 : -1;
@@ -33,28 +33,28 @@ const TableData: React.FC<Props> = ({ customers, getCustomers }) => {
     });
   }
 
-  const toggleSortDirection = (field: keyof customer) => {
+  const toggleSortDirection = (field: keyof Customer) => {
     if (sortedField === field) {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
-      setSortedField(field as keyof customer);
+      setSortedField(field as keyof Customer);
       setSortDirection('asc');
     }
   };
 
   const [showModalDetails, setShowModalDetails] = React.useState(false);
-  const [selectedCust, setSelectedCust] = React.useState<customer | null>(null);
+  const [selectedCust, setSelectedCust] = React.useState<Customer | null>(null);
 
   const closeModalDetails = () => setShowModalDetails(false);
 
   const navigate = useNavigate();
 
-  const openModalDetails = (data: customer) => {
+  const openModalDetails = (data: Customer) => {
     setSelectedCust(data);
     setShowModalDetails(true);
   };
 
-  const openUpdateModal = (data: customer) => {
+  const openUpdateModal = (data: Customer) => {
     setSelectedCust(data);
     navigate('/UpdateCustomer', { state: { data } });
   };

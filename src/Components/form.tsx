@@ -1,4 +1,4 @@
-import { baseUrl, customer, AppContext } from "../App";
+import { baseUrl, Customer, AppContext } from "../App";
 import React, { useContext } from 'react';
 import axios from "axios";
 import { useState } from 'react';
@@ -8,21 +8,26 @@ import { useNavigate } from 'react-router-dom';
 interface Props {
   title: string;
   submitType: string;
-  selectedCust: customer | null;
+  selectedCust: Customer;
 }
 
 const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
   const { loading } = useContext(AppContext);
+  const [disable, setFieldDisable] = useState(false);
+  const [customer, setCustomer] = useState<Customer>({
+    id: 0,
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    customerAddress: {
+      id: 0,
+      city: '',
+      state: '',
+      zipCode: ''
+    }
+  });
 
-  const [id, setId] = useState(0);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [customerAddressId, setCustomerAddressId] = useState(0);
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zipCode, setZipCode] = useState(0);
   const [emailAlertMessage, setEmailAlertMessage] = useState("");
   const [phoneAlertMessage, setPhoneAlertMessage] = useState("");
   const [emailAlert, setEmailAlert] = useState(false);
@@ -32,51 +37,70 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    if (selectedCust !== null) {
-      setId(selectedCust.id);
-      setFirstName(selectedCust.firstName);
-      setLastName(selectedCust.lastName);
-      setEmail(selectedCust.email);
-      setPhone(selectedCust.phone);
-      setCustomerAddressId(selectedCust.customerAddress.id);
-      setCity(selectedCust.customerAddress.city);
-      setState(selectedCust.customerAddress.state);
-      setZipCode(selectedCust.customerAddress.zipCode);
-    }
-  }, [selectedCust]);
-
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setEmail(event.target.value);
-    if (validateEmail(email)) {
-      axios
-        .get(`${baseUrl}/Customer/IsEmailExist/${event.target.value}`)
-        .then(res => {
-          if (res.data.result) {
-            setEmailAlert(true);
-            setEmailAlertMessage(res.data.message);
-          }
-          else {
-            setEmailAlert(false);
-            setEmail(event.target.value);
-          }
-        })
-        .catch(err => {
-          console.log(err)
-        });
+    if (submitType == 'Update Customer') {
+      setFieldDisable(true);
+      setCustomer(selectedCust);
     }
     else{
-      setEmailAlert(false);
+      setFieldDisable(false);
+    }
+  }, []);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    if (name === 'city' || name === 'state' || name === 'zipCode') {
+      setCustomer({
+        ...customer,
+        customerAddress: {
+          ...customer.customerAddress,
+          [name]: value
+        }
+      })
+    } else {
+      setCustomer({
+        ...customer,
+        [name]: value
+      })
     }
   }
 
-
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const { name, value } = event.target
+    setCustomer({
+      ...customer,
+      [name]: value
+    });
+    if (validateEmail(value)){
+      axios
+      .get(`${baseUrl}/Customer/IsEmailExist/${value}`)
+      .then(res => {
+        if (res.data.result) {
+          setEmailAlert(true);
+          setEmailAlertMessage(res.data.message);
+        }
+        else {
+          setEmailAlert(false);
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      });
+    }
+    else {
+      setEmailAlert(false);
+    }
+  }
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    setPhone(event.target.value);
-    if (validatePhone(phone)) {
+    const { name, value } = event.target
+    setCustomer({
+      ...customer,
+      [name]: value
+    });
+    if (validatePhone(value)) {
       axios
-        .get(`${baseUrl}/Customer/IsPhoneExist/${event.target.value}`)
+        .get(`${baseUrl}/Customer/IsPhoneExist/${value}`)
         .then(res => {
           if (res.data.result) {
             setPhoneAlert(true);
@@ -84,34 +108,19 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
           }
           else {
             setPhoneAlert(false);
-            setPhone(event.target.value);
           }
         })
         .catch(err => {
           console.log(err)
         });
     }
-    else{
+    else {
       setPhoneAlert(false);
     }
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const customer = {
-      id,
-      firstName,
-      lastName,
-      email,
-      phone,
-      customerAddress: {
-        customerAddressId,
-        city,
-        state,
-        zipCode
-      }
-    };
-
     if (submitType == 'Update Customer') {
       axios
         .put(`${baseUrl}/Customer`, customer)
@@ -167,11 +176,11 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
             id='firstName'
             aria-label="First name"
             name="firstName"
-            value={firstName}
-            onChange={e => setFirstName(e.target.value)}
+            value={customer.firstName}
+            onChange={handleChange}
             required />
-          {firstName == "" ? <p className="text-danger font-weight-bold">* Please enter the first name</p> : null}
-          {!validateName(firstName) && firstName !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid first name</p> : null}
+          {customer.firstName == "" ? <p className="text-danger font-weight-bold">* Please enter the first name</p> : null}
+          {!validateName(customer.firstName) && customer.firstName !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid first name</p> : null}
         </div>
         <div className="col-md-6">
           <label htmlFor="lastName" className="form-label">Last Name</label>
@@ -182,11 +191,11 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
             id='lastName'
             aria-label="Last name"
             name="lastName"
-            value={lastName}
-            onChange={e => setLastName(e.target.value)}
+            value={customer.lastName}
+            onChange={handleChange}
             required />
-          {lastName == "" ? <p className="text-danger font-weight-bold">* Please enter the Last name</p> : null}
-          {!validateName(lastName) && lastName !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid Last name</p> : null}
+          {customer.lastName == "" ? <p className="text-danger font-weight-bold">* Please enter the Last name</p> : null}
+          {!validateName(customer.lastName) && customer.lastName !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid Last name</p> : null}
         </div>
       </div>
       <div className="col-md-6">
@@ -197,12 +206,13 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
           id="email"
           placeholder="Enter Email"
           name="email"
-          value={email}
+          value={customer.email}
+          disabled={disable}
           onChange={handleEmailChange}
           required />
-        {email == "" ? <p className="text-danger font-weight-bold">* Please enter the Email</p> : null}
-        {!validateEmail(email) && email !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid Email address</p> : null}
-        {emailAlert && email != "" ? <p className="text-danger font-weight-bold">{emailAlertMessage}</p> : null}
+        {customer.email == "" ? <p className="text-danger font-weight-bold">* Please enter the Email</p> : null}
+        {!validateEmail(customer.email) && customer.email !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid Email address</p> : null}
+        {emailAlert && customer.email != "" ? <p className="text-danger font-weight-bold">{emailAlertMessage}</p> : null}
       </div>
       <div className="col-md-6">
         <label htmlFor="phoneNumber" className="form-label">Phone</label>
@@ -212,12 +222,13 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
           id="phoneNumber"
           placeholder="Enter phone number"
           name="phone"
-          value={phone}
+          value={customer.phone}
+          disabled={disable}
           onChange={handlePhoneChange}
         />
-        {phone == "" ? <p className="text-danger font-weight-bold">* Please enter the Phone number</p> : null}
-        {!validatePhone(phone) && phone !== "" ? <p className="text-danger font-weight-bold">Please enter a valid Phone number</p> : null}
-        {phoneAlert && phone != "" ? <p className="text-danger font-weight-bold">{phoneAlertMessage}</p> : null}
+        {customer.phone == "" ? <p className="text-danger font-weight-bold">* Please enter the Phone number</p> : null}
+        {!validatePhone(customer.phone) && customer.phone !== "" ? <p className="text-danger font-weight-bold">Please enter a valid Phone number</p> : null}
+        {phoneAlert && customer.phone != "" ? <p className="text-danger font-weight-bold">{phoneAlertMessage}</p> : null}
       </div>
       <div className="col-md-6">
         <label htmlFor="inputCity" className="form-label">City</label>
@@ -227,10 +238,10 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
           id="inputCity"
           placeholder="Enter city name"
           name="city"
-          value={city}
-          onChange={e => setCity(e.target.value)}
+          value={customer.customerAddress.city}
+          onChange={handleChange}
         />
-        {!validateName(city) && city !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid city name</p> : null}
+        {!validateName(customer.customerAddress.city) && customer.customerAddress.city !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid city name</p> : null}
 
       </div>
       <div className="col-md-4">
@@ -239,24 +250,24 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
           type="text"
           className="form-control"
           id="inputCity"
-          placeholder="Enter city name"
+          placeholder="Enter State name"
           name="state"
-          value={state}
-          onChange={e => setState(e.target.value)}
+          value={customer.customerAddress.state}
+          onChange={handleChange}
         />
-        {!validateName(state) && state !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid state name</p> : null}
+        {!validateName(customer.customerAddress.state) && customer.customerAddress.state !== "" ? <p className="text-danger font-weight-bold">* Please enter a valid state name</p> : null}
 
       </div>
       <div className="col-md-2">
         <label htmlFor="inputZip" className="form-label">Zip</label>
         <input
-          type="number"
+          type="text"
           className="form-control"
           id="inputZip"
           placeholder="Enter zip code"
           name="zipCode"
-          value={zipCode}
-          onChange={e => setZipCode(e.target.valueAsNumber)}
+          value={customer.customerAddress.zipCode}
+          onChange={handleChange}
         />
       </div>
 
@@ -265,12 +276,12 @@ const Form: React.FC<Props> = ({ title, submitType, selectedCust }) => {
           type="submit"
           className="btn btn-primary"
           value={submitType}
-          disabled={!validateName(firstName) ||
-            !validateName(lastName) ||
-            !validateEmail(email) ||
-            !validatePhone(phone) ||
-            (!validateName(city) && city != "") ||
-            (!validateName(state) && state != "") ||
+          disabled={!validateName(customer.firstName) ||
+            !validateName(customer.lastName) ||
+            !validateEmail(customer.email) ||
+            !validatePhone(customer.phone) ||
+            (!validateName(customer.customerAddress.city) && customer.customerAddress.city != "") ||
+            (!validateName(customer.customerAddress.state) && customer.customerAddress.state != "") ||
             emailAlert ||
             phoneAlert
           }

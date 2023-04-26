@@ -1,11 +1,11 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { customer } from '../App';
+import { Customer } from '../App';
 
 interface Props {
   show: boolean;
   closeModal: () => void;
-  selectedCust: customer | null;
+  selectedCust: Customer | null;
 }
 
 const ModalDetails: React.FC<Props> = ({ show, closeModal, selectedCust }) => {

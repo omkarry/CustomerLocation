@@ -1,9 +1,9 @@
-import {customer} from "../App";
+import {Customer} from "../App";
 import React, {useState} from 'react';
 import Form from "../Components/form";
 
 const AddCustomer: React.FC = () => {
-  const [newCustomer, setNewCustomer] = useState<customer>({
+  const [newCustomer, setNewCustomer] = useState<Customer>({
     id: 0,
     firstName: '',
     lastName: '',
@@ -13,7 +13,7 @@ const AddCustomer: React.FC = () => {
       id: 0,
       city: '',
       state: '',
-      zipCode: 0
+      zipCode: ''
     }
   });
   return (
